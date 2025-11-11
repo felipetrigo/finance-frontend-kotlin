@@ -213,16 +213,17 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
                     uiDebts.forEach { uiElement ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight()
                         ) {
+                            Spacer(modifier = Modifier.weight(1f))
+
                             // Barra
                             Box(
                                 modifier = Modifier
                                     .width(32.dp)
-                                    .fillMaxHeight(fraction = (uiElement.percentage / 100f).coerceIn(
-                                        0.1, 1.0
-                                    )
-                                        .toFloat())
+                                    .height((220 * (uiElement.percentage / 100f)).dp)
                                     .background(uiElement.color)
                             )
 
