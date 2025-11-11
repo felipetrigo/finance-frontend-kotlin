@@ -6,10 +6,12 @@ import com.example.financefocus.dto.Spent
 import com.example.financefocus.dto.SpentRequest
 import com.example.financefocus.dto.Login;
 import com.example.financefocus.dto.Sessao
+import com.example.financefocus.dto.SpentUpdateRequest
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -41,6 +43,20 @@ interface ApiContract {
         @Header("Authorization") token: String,
         @Path("username") username: String
     ): Call<Account>
+
+    @DELETE("v1/spent/delete")
+    fun deleteSpent(
+        @Header("Authorization") token: String,
+        @Query("id") spentId: Long
+    ): Call<Void>
+
+    @PUT("v1/spent/update")
+    fun updateSpent(
+        @Header("Authorization") token: String,
+        @Body spent: SpentUpdateRequest
+    ): Call<Spent>
+
+
     companion object {
         fun buildRetroFit(): ApiContract {
             return Retrofit

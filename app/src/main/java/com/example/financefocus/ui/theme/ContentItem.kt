@@ -2,5 +2,6 @@ package com.example.financefocus
 
 data class ContentItem(
     val title: String,
-    val author: String
+    val author: String,
+    val uri: String
 )

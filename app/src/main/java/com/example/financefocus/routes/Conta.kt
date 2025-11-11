@@ -8,8 +8,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.School
@@ -74,20 +77,12 @@ fun Conta(navController: NavController?, sharedViewModel: SharedViewModel?) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            Text(
-                text = "CONTA",
-                color = Color.White,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 20.dp)
-            )
+
             // Botão Sair no topo direito
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
                     onClick = {
@@ -97,24 +92,24 @@ fun Conta(navController: NavController?, sharedViewModel: SharedViewModel?) {
                         }
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF00E676),
+                        containerColor = Color(0xFFE60049),
                         contentColor = Color.Black
                     ),
                     shape = RoundedCornerShape(20.dp),
                     modifier = Modifier.height(40.dp)
                 ) {
-                    Text(
-                        text = "Sair",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
                     Icon(
-                        imageVector = Icons.Default.ArrowForward,
+                        imageVector = Icons.Default.KeyboardArrowLeft,
                         contentDescription = "Sair",
                         modifier = Modifier.size(16.dp)
                     )
                 }
+                Text(
+                    text = "CONTA",
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
 
             Spacer(modifier = Modifier.height(60.dp))

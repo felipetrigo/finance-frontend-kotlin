@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.financefocus.R
-import com.example.financefocus.Routes
 import com.example.financefocus.apicontract.ApiContract
 import com.example.financefocus.dto.Login
 import com.example.financefocus.dto.Sessao
@@ -33,6 +32,7 @@ import com.seuapp.financefocus.ui.theme.FinanceFocusTheme
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.financefocus.Routes
 
 @Composable
 fun LoginScreen(navController: NavController,sharedViewModel: SharedViewModel?) {

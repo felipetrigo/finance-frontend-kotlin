@@ -3,17 +3,36 @@ package com.example.financefocus.routes
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,6 +51,7 @@ import com.example.financefocus.apicontract.ApiContract
 import com.example.financefocus.dto.Account
 import com.example.financefocus.dto.SharedViewModel
 import com.example.financefocus.dto.Spent
+import com.example.financefocus.dto.SpentRequest
 import com.example.financefocus.dto.UIDebt
 import retrofit2.Call
 import retrofit2.Callback
@@ -72,7 +92,6 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
     var uiDebts = emptyArray<UIDebt>().toMutableList()
     var isListEmpty by remember { mutableStateOf(false) }
     var spentsList by remember { mutableStateOf(listOf<Spent>()) }
-
 
     var isSuccessfulDebtsQuery by remember { mutableStateOf(false) }
     var isSuccessfulvAccountQuery by remember { mutableStateOf(false) }
@@ -160,49 +179,82 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
             color = Color.White,
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
+            textAlign = TextAlign.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 20.dp)
+                .padding(all = 20.dp)
         )
+
+        // Progress Bars - Gráfico Visual com Barras Separadas
+        if (uiDebts.isNotEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 30.dp)
+            ) {
+                // Títulos
+                Text(
+                    text = "Distribuição de Gastos",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Gráfico com barras
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    uiDebts.forEach { uiElement ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            // Barra
+                            Box(
+                                modifier = Modifier
+                                    .width(32.dp)
+                                    .fillMaxHeight(fraction = (uiElement.percentage / 100f).coerceIn(
+                                        0.1, 1.0
+                                    )
+                                        .toFloat())
+                                    .background(uiElement.color)
+                            )
+
+                            // Porcentagem
+                            Text(
+                                text = String.format("%.1f%%", uiElement.percentage),
+                                color = Color.White,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+
+                            // Nome do gasto
+                            Text(
+                                text = uiElement.debt.name,
+                                color = Color.White,
+                                fontSize = 9.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(top = 4.dp),
+                                maxLines = 2
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         Column(
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 20.dp)
         ) {
-            // Progress Bars
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(30.dp)
-                    .padding(bottom = 20.dp)
-            ) {
-                uiDebts.forEach { uiElement ->
-                    Box(
-                        modifier = Modifier
-                            .weight((uiElement.percentage/100f).toFloat())
-                            .fillMaxHeight()
-                            .background(uiElement.color)
-                    )
-                }
-            }
-
-            // Progress percentages
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 30.dp)
-            ) {
-                uiDebts.forEach { uiElement ->
-                    Text(
-                        text = "%.2f ".format(uiElement.percentage) + "%",
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier.weight((uiElement.percentage/100f).toFloat())
-                    )
-                }
-            }
             // processador de lista de gastos
             if(isSuccessfulDebtsQuery&&spentsList.isNotEmpty()){
                 uiDebts.forEach{ uiElement: UIDebt ->
@@ -210,7 +262,16 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
                     CategoryItem(
                         color = uiElement.color,
                         label = uiElement.debt.name,
-                        value = uiElement.debt.price.toString()
+                        value = uiElement.debt.price.toString(),
+                        spentId = uiElement.debt.id,
+                        sharedViewModel = sharedViewModel,
+                        navController = navController,
+                        spent = uiElement.debt,
+                        onDelete = {
+                            // Remova o item da lista após a exclusão bem-sucedida
+                            spentsList = spentsList.filter { it.id != uiElement.debt.id }
+                            uiDebts = uiDebts.filter { it.debt.id != uiElement.debt.id }.toMutableList()
+                        }
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -240,7 +301,21 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
 
             // Add Button
             FloatingActionButton(
-                onClick = { /* Add functionality */ },
+                onClick = {
+                    if (sharedViewModel != null) {
+                        val spentRequest = SpentRequest(
+                            clientUsername = sharedViewModel.username,
+                            price = 0.0,  // This will be filled in the next screen
+                            name = ""     // This will be filled in the next screen
+                        )
+
+                        // Store the spent request in shared view model for the next screen
+                        sharedViewModel.currentSpentRequest = spentRequest
+
+                        // Navigate to add spent screen
+                        navController?.navigate(Routes.ADDSPENT)
+                    }
+                },
                 containerColor = Color(0xFF6A1B9A),
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
@@ -273,8 +348,15 @@ fun GastosScreen(navController: NavController?, sharedViewModel: SharedViewModel
 fun CategoryItem(
     color: Color,
     label: String,
-    value: String
+    value: String,
+    spentId: Long,
+    sharedViewModel: SharedViewModel?,
+    navController: NavController? = null,
+    spent: Spent? = null,
+    onDelete: () -> Unit = {}
 ) {
+    var isLoading by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -302,14 +384,75 @@ fun CategoryItem(
             modifier = Modifier.padding(end = 8.dp)
         )
 
-        // Substitui o OutlinedTextField por Text
         Text(
             text = value,
             color = Color.White,
             fontSize = 16.sp,
-            modifier = Modifier.width(120.dp),
+            modifier = Modifier.width(100.dp),
             fontWeight = FontWeight.Bold
         )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = Color.White,
+                strokeWidth = 2.dp,
+                modifier = Modifier.size(24.dp)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Edit",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        if (sharedViewModel != null && spent != null) {
+                            sharedViewModel.currentSpentToUpdate = spent
+                            navController?.navigate(Routes.EDITSPENT)
+                        }
+                    }
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                color = Color.White,
+                strokeWidth = 2.dp,
+                modifier = Modifier.size(24.dp)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Delete",
+                tint = Color.White,
+                modifier = Modifier
+                    .size(24.dp)
+                    .clickable {
+                        if (sharedViewModel != null) {
+                            isLoading = true
+                            val client = ApiContract.buildRetroFit()
+                            client.deleteSpent(sharedViewModel.token, spentId).enqueue(object : Callback<Void> {
+                                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                                    isLoading = false
+                                    if (response.isSuccessful) {
+                                        onDelete()
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<Void>, t: Throwable) {
+                                    isLoading = false
+                                    Log.e("DeleteSpent", "Error deleting spent", t)
+                                }
+                            })
+                        }
+                    }
+            )
+        }
+
     }
 }
 

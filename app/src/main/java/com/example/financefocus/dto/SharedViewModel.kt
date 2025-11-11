@@ -14,6 +14,8 @@ class SharedViewModel : ViewModel() {
     var username by mutableStateOf("")
     var password by mutableStateOf("")
     var token by mutableStateOf("")
+    var currentSpentRequest by mutableStateOf<SpentRequest?>(null)
+    var currentSpentToUpdate by mutableStateOf<Spent?>(null)
     private var client = ApiContract.buildRetroFit()
     fun setLoginData(user: String, password: String) {
         this.username = user
